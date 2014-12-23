@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 
 import it.patrick91.orariair.fragments.SearchFragment;
+import it.patrick91.orariair.sync.AirSyncAdapter;
 
 
 public class MainActivity extends ActionBarActivity implements SearchFragment.OnSearchListener {
@@ -29,6 +30,8 @@ public class MainActivity extends ActionBarActivity implements SearchFragment.On
                     .add(R.id.container, new SearchFragment())
                     .commit();
         }
+
+        AirSyncAdapter.syncImmediately(this);
     }
 
     @Override
