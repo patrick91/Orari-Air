@@ -5,10 +5,15 @@ import android.accounts.AccountManager;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
 import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,6 +21,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Vector;
 
 import it.patrick91.orariair.R;
 
@@ -91,7 +97,21 @@ public class AirSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
 
-        Log.d(LOG_TAG, localitiesJsonString);
+        try {
+            JSONArray localitiesArray = new JSONArray(localitiesJsonString);
+
+            Vector<ContentValues> cVVector = new Vector<>(localitiesArray.length());
+
+            for (int i = 0; i < localitiesArray.length(); i++) {
+                JSONObject obj = localitiesArray.getJSONObject(i);
+
+                cVVector.add(ParsingUtils.parseLocation(obj));
+            }
+
+            Log.d("SYNC ADAPTER", "l " + cVVector.size());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void syncImmediately(Context context) {
