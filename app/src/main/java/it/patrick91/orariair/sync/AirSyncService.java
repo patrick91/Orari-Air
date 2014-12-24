@@ -3,7 +3,6 @@ package it.patrick91.orariair.sync;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.util.Log;
 
 /**
  * Created by patrick on 22/12/14.
