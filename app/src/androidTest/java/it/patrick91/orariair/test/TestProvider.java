@@ -14,6 +14,28 @@ import static it.patrick91.orariair.data.AirContract.LocalityEntry;
  * Created by patrick on 25/12/14.
  */
 public class TestProvider extends AndroidTestCase {
+    public void deleteAllRecords() {
+        mContext.getContentResolver().delete(
+                LocalityEntry.CONTENT_URI,
+                null,
+                null
+        );
+
+        Cursor cursor = mContext.getContentResolver().query(
+                LocalityEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+        );
+        assertEquals(0, cursor.getCount());
+        cursor.close();
+    }
+
+    public void setUp() {
+        deleteAllRecords();
+    }
+
     public void testInsert() {
         ContentValues values = TestDb.createAvellinoLocalityValues();
 
