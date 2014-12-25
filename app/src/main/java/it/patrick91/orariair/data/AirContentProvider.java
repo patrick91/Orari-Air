@@ -88,18 +88,26 @@ public class AirContentProvider extends ContentProvider {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
 
+        Uri returnUri;
+
         switch (match) {
             case LOCALITY:
                 long _id = db.insert(LocalityEntry.TABLE_NAME, null, values);
 
                 if (_id > 0) {
-                    return LocalityEntry.buildLocalityUri(_id);
+                    returnUri = LocalityEntry.buildLocalityUri(_id);
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
+
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
+
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        return returnUri;
     }
 
     @Override
@@ -124,6 +132,8 @@ public class AirContentProvider extends ContentProvider {
                 } finally {
                     db.endTransaction();
                 }
+
+                getContext().getContentResolver().notifyChange(uri, null);
 
                 return returnCount;
             default:
