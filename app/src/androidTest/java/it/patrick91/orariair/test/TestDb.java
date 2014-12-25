@@ -5,7 +5,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
 
-import it.patrick91.orariair.data.AirContract;
+import java.util.Map;
+import java.util.Set;
+
 import it.patrick91.orariair.data.AirDbHelper;
 
 import static it.patrick91.orariair.data.AirContract.LocalityEntry;
@@ -17,6 +19,34 @@ public class TestDb extends AndroidTestCase {
 
     public static final String LOG_TAG = TestDb.class.getSimpleName();
 
+    public static ContentValues createAvellinoLocalityValues() {
+        String testName = "Avellino";
+        int testApiId = 1;
+
+        ContentValues values = new ContentValues();
+        values.put(LocalityEntry.COLUMN_NAME, testName);
+        values.put(LocalityEntry.COLUMN_API_ID, testApiId);
+
+        return values;
+    }
+
+    static void validateCursor(Cursor valueCursor, ContentValues expectedValues) {
+        assertTrue(valueCursor.moveToFirst());
+
+        Set<Map.Entry<String, Object>> valueSet = expectedValues.valueSet();
+
+        for (Map.Entry<String, Object> entry : valueSet) {
+            String columnName = entry.getKey();
+            String expectedValue = entry.getValue().toString();
+            int idx = valueCursor.getColumnIndex(columnName);
+
+            assertFalse(idx == -1);
+            assertEquals(expectedValue, valueCursor.getString(idx));
+        }
+
+        valueCursor.close();
+    }
+
     public void testCreateDb() throws Throwable {
         mContext.deleteDatabase(AirDbHelper.DATABASE_NAME);
         SQLiteDatabase db = new AirDbHelper(this.mContext).getWritableDatabase();
@@ -25,14 +55,10 @@ public class TestDb extends AndroidTestCase {
     }
 
     public void testInsertReadDb() {
-        String testName = "Avellino";
-        int testApiId = 1;
 
         SQLiteDatabase db = new AirDbHelper(this.mContext).getWritableDatabase();
 
-        ContentValues values = new ContentValues();
-        values.put(LocalityEntry.COLUMN_NAME, testName);
-        values.put(LocalityEntry.COLUMN_API_ID, testApiId);
+        ContentValues values = createAvellinoLocalityValues();
 
         long localityRowId = db.insert(LocalityEntry.TABLE_NAME, null, values);
 
@@ -52,15 +78,7 @@ public class TestDb extends AndroidTestCase {
                 null
         );
 
-        if (cursor.moveToFirst()) {
-            String name = cursor.getString(cursor.getColumnIndex(LocalityEntry.COLUMN_NAME));
-            int apiId = cursor.getInt(cursor.getColumnIndex(LocalityEntry.COLUMN_API_ID));
-
-            assertEquals(name, testName);
-            assertEquals(apiId, testApiId);
-        } else {
-            fail("No rows returned!");
-        }
+        validateCursor(cursor, values);
 
         db.close();
     }

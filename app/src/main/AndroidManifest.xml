@@ -35,7 +35,7 @@
 
         <provider
             android:name="it.patrick91.orariair.data.AirContentProvider"
-            android:authorities="it.patrick91.orariair.data.provider"
+            android:authorities="it.patrick91.orariair"
             android:exported="false"
             android:syncable="true"/>
 
