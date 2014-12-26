@@ -8,9 +8,11 @@ import android.test.AndroidTestCase;
 import java.util.Map;
 import java.util.Set;
 
+import it.patrick91.orariair.data.AirContract;
 import it.patrick91.orariair.data.AirDbHelper;
 
 import static it.patrick91.orariair.data.AirContract.LocalityEntry;
+import static it.patrick91.orariair.data.AirContract.RouteEntry;
 
 /**
  * Created by patrick on 23/12/14.
@@ -22,6 +24,17 @@ public class TestDb extends AndroidTestCase {
     public static ContentValues createAvellinoLocalityValues() {
         String testName = "Avellino";
         int testApiId = 1;
+
+        ContentValues values = new ContentValues();
+        values.put(LocalityEntry.COLUMN_NAME, testName);
+        values.put(LocalityEntry.COLUMN_API_ID, testApiId);
+
+        return values;
+    }
+
+    public static ContentValues createFiscianoLocalityValues() {
+        String testName = "Fisciano";
+        int testApiId = 2;
 
         ContentValues values = new ContentValues();
         values.put(LocalityEntry.COLUMN_NAME, testName);
@@ -45,6 +58,17 @@ public class TestDb extends AndroidTestCase {
         }
 
         valueCursor.close();
+    }
+
+    @Override
+    protected void setUp() throws Exception {
+        mContext.deleteDatabase(AirDbHelper.DATABASE_NAME);
+        SQLiteDatabase db = new AirDbHelper(this.mContext).getWritableDatabase();
+
+        db.delete(LocalityEntry.TABLE_NAME, null, null);
+        db.delete(RouteEntry.TABLE_NAME, null, null);
+
+        db.close();
     }
 
     public void testCreateDb() throws Throwable {
@@ -79,6 +103,31 @@ public class TestDb extends AndroidTestCase {
         );
 
         validateCursor(cursor, values);
+
+        db.close();
+    }
+
+    public void testInsertRoute() {
+        SQLiteDatabase db = new AirDbHelper(this.mContext).getWritableDatabase();
+
+        ContentValues values = createAvellinoLocalityValues();
+        ContentValues valuesFisciano = createFiscianoLocalityValues();
+
+        long localityAvellino = db.insert(LocalityEntry.TABLE_NAME, null, values);
+        long localityFisciano = db.insert(LocalityEntry.TABLE_NAME, null, valuesFisciano);
+
+        assertTrue(localityAvellino != -1);
+        assertTrue(localityFisciano != -1);
+
+        ContentValues routeValues = new ContentValues();
+        routeValues.put(RouteEntry.COLUMN_FROM, localityAvellino);
+        routeValues.put(RouteEntry.COLUMN_TO, localityFisciano);
+        routeValues.put(RouteEntry.COLUMN_DATE, "2014-12-26");
+        routeValues.put(RouteEntry.COLUMN_TIME, "12:00");
+
+        long routeId = db.insert(RouteEntry.TABLE_NAME, null, routeValues);
+
+        assertTrue(routeId != -1);
 
         db.close();
     }
