@@ -31,4 +31,13 @@ public class AirContract {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
     }
+
+    public static final class RouteEntry implements BaseColumns {
+        public static final String TABLE_NAME = "route";
+
+        public static final String COLUMN_FROM = "from_id";
+        public static final String COLUMN_TO = "to_id";
+        public static final String COLUMN_DATE = "date";
+        public static final String COLUMN_TIME = "time";
+    }
 }
