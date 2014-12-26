@@ -11,6 +11,6 @@
     <string name="to_xxx">To: %1$s</string>
     <string name="from_xxx">From: %1$s</string>
     <string name="sync_account_type">orariair.patrick91.it</string>
-    <string name="content_authority">it.patrick91.orariair.data.provider</string>
+    <string name="content_authority">it.patrick91.orariair</string>
 
 </resources>

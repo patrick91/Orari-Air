@@ -24,6 +24,10 @@ import java.net.URL;
 import java.util.Vector;
 
 import it.patrick91.orariair.R;
+import it.patrick91.orariair.data.AirContract;
+
+import static it.patrick91.orariair.data.AirContract.LocalityEntry;
+import static it.patrick91.orariair.data.AirContract.LocalityEntry.*;
 
 /**
  * Created by patrick on 22/12/14.
@@ -108,7 +112,13 @@ public class AirSyncAdapter extends AbstractThreadedSyncAdapter {
                 cVVector.add(ParsingUtils.parseLocation(obj));
             }
 
-            Log.d("SYNC ADAPTER", "l " + cVVector.size());
+            if (cVVector.size() > 0) {
+                ContentValues[] cvArray = new ContentValues[cVVector.size()];
+                cVVector.toArray(cvArray);
+
+                getContext().getContentResolver().delete(LocalityEntry.CONTENT_URI, null, null);
+                getContext().getContentResolver().bulkInsert(CONTENT_URI, cvArray);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
