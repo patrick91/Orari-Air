@@ -9,6 +9,7 @@ import android.test.AndroidTestCase;
 import it.patrick91.orariair.data.AirContract;
 
 import static it.patrick91.orariair.data.AirContract.LocalityEntry;
+import static it.patrick91.orariair.data.AirContract.RouteEntry;
 
 /**
  * Created by patrick on 25/12/14.
@@ -82,5 +83,9 @@ public class TestProvider extends AndroidTestCase {
 
         type = mContext.getContentResolver().getType(LocalityEntry.buildLocalityUri(1));
         assertEquals(LocalityEntry.CONTENT_ITEM_TYPE, type);
+
+
+        type = mContext.getContentResolver().getType(RouteEntry.buildRoutesUri(1, 2));
+        assertEquals(RouteEntry.CONTENT_TYPE, type);
     }
 }

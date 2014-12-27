@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 
 import static it.patrick91.orariair.data.AirContract.LocalityEntry;
+import static it.patrick91.orariair.data.AirContract.RouteEntry;
 
 /**
  * Created by patrick on 23/12/14.
@@ -20,6 +21,7 @@ public class AirContentProvider extends ContentProvider {
 
     private static final int LOCALITY = 100;
     private static final int LOCALITY_ID = 101;
+    private static final int ROUTE = 200;
 
     @Override
     public boolean onCreate() {
@@ -34,6 +36,8 @@ public class AirContentProvider extends ContentProvider {
 
         matcher.addURI(authority, AirContract.PATH_LOCALITY, LOCALITY);
         matcher.addURI(authority, AirContract.PATH_LOCALITY + "/#", LOCALITY_ID);
+
+        matcher.addURI(authority, AirContract.PATH_ROUTE, ROUTE);
 
         return matcher;
     }
@@ -89,6 +93,8 @@ public class AirContentProvider extends ContentProvider {
                 return LocalityEntry.CONTENT_TYPE;
             case LOCALITY_ID:
                 return LocalityEntry.CONTENT_ITEM_TYPE;
+            case ROUTE:
+                return RouteEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
