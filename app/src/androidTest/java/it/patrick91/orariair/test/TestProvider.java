@@ -36,13 +36,23 @@ public class TestProvider extends AndroidTestCase {
         deleteAllRecords();
     }
 
-    public void testInsert() {
+    public void testInsertRead() {
         ContentValues values = TestDb.createAvellinoLocalityValues();
 
         Uri locationUri = mContext.getContentResolver().insert(LocalityEntry.CONTENT_URI, values);
         long locationRowId = ContentUris.parseId(locationUri);
 
         assertTrue(locationRowId != -1);
+
+        Cursor cursor = mContext.getContentResolver().query(
+                LocalityEntry.buildLocalityUri(locationRowId),
+                null,
+                null,
+                null,
+                null
+        );
+
+        TestDb.validateCursor(cursor, values);
     }
 
     public void testBulkInsertRead() {

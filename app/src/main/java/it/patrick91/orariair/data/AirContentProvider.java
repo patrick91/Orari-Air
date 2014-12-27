@@ -1,6 +1,7 @@
 package it.patrick91.orariair.data;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
@@ -47,7 +48,7 @@ public class AirContentProvider extends ContentProvider {
         Cursor retCursor;
 
         switch (sUriMatcher.match(uri)) {
-            case LOCALITY: {
+            case LOCALITY:
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         LocalityEntry.TABLE_NAME,
                         projection,
@@ -58,8 +59,18 @@ public class AirContentProvider extends ContentProvider {
                         sortOrder
                 );
                 break;
-            }
 
+            case LOCALITY_ID:
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        LocalityEntry.TABLE_NAME,
+                        projection,
+                        LocalityEntry._ID + " = '" + ContentUris.parseId(uri) + "'",
+                        null,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
