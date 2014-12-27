@@ -11,7 +11,7 @@ import static it.patrick91.orariair.data.AirContract.RouteEntry;
  * Created by patrick on 23/12/14.
  */
 public class AirDbHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     public static final String DATABASE_NAME = "air.db";
 
@@ -33,7 +33,9 @@ public class AirDbHelper extends SQLiteOpenHelper {
                 RouteEntry.COLUMN_FROM + " INTEGER NOT NULL, " +
                 RouteEntry.COLUMN_TO + " INTEGER NOT NULL, " +
                 RouteEntry.COLUMN_DATE + " TEXT NOT NULL, " +
-                RouteEntry.COLUMN_TIME + " TEXT NOT NULL, " +
+                RouteEntry.COLUMN_START_TIME + " TEXT NOT NULL, " +
+                RouteEntry.COLUMN_END_TIME + " TEXT NOT NULL, " +
+                RouteEntry.COLUMN_DURATION + " TEXT NOT NULL, " +
 
                 " FOREIGN KEY (" + RouteEntry.COLUMN_FROM + ") REFERENCES " +
                 LocalityEntry.TABLE_NAME + " (" + LocalityEntry._ID + "), " +

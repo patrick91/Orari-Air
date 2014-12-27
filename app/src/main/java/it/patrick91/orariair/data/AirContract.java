@@ -38,6 +38,8 @@ public class AirContract {
         public static final String COLUMN_FROM = "from_id";
         public static final String COLUMN_TO = "to_id";
         public static final String COLUMN_DATE = "date";
-        public static final String COLUMN_TIME = "time";
+        public static final String COLUMN_START_TIME = "start_time";
+        public static final String COLUMN_END_TIME = "end_time";
+        public static final String COLUMN_DURATION = "duration";
     }
 }
