@@ -48,8 +48,11 @@ public class MainActivity extends ActionBarActivity implements SearchFragment.On
     }
 
     @Override
-    public void onSearch(String from, String to) {
+    public void onSearch(long fromId, long toId) {
         Intent searchIntent = new Intent(this, RoutesActivity.class);
+
+        searchIntent.putExtra(RoutesActivity.FROM_ID_KEY, fromId);
+        searchIntent.putExtra(RoutesActivity.TO_ID_KEY, toId);
 
         startActivity(searchIntent);
     }

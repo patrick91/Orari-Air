@@ -9,14 +9,27 @@ import it.patrick91.orariair.fragments.RoutesFragment;
 
 
 public class RoutesActivity extends ActionBarActivity {
+    public static final String FROM_ID_KEY = "from_id";
+    public static final String TO_ID_KEY = "to_id";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_routes);
+
         if (savedInstanceState == null) {
+            long fromId = getIntent().getLongExtra(FROM_ID_KEY, -1);
+            long toId = getIntent().getLongExtra(TO_ID_KEY, -1);
+
+            Bundle arguments = new Bundle();
+            arguments.putLong(FROM_ID_KEY, fromId);
+            arguments.putLong(TO_ID_KEY, toId);
+
+            RoutesFragment fragment = new RoutesFragment();
+            fragment.setArguments(arguments);
+
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new RoutesFragment())
+                    .add(R.id.container, fragment)
                     .commit();
         }
     }

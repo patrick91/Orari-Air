@@ -57,9 +57,8 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        Spinner fromSpinner = (Spinner) rootView.findViewById(R.id.from_spinner);
-        Spinner toSpinner = (Spinner) rootView.findViewById(R.id.to_spinner);
-
+        final Spinner fromSpinner = (Spinner) rootView.findViewById(R.id.from_spinner);
+        final Spinner toSpinner = (Spinner) rootView.findViewById(R.id.to_spinner);
 
         mLocalityAdapter = new SimpleCursorAdapter(getActivity(),
                 android.R.layout.simple_list_item_1,
@@ -74,7 +73,7 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
             @Override
             public void onClick(View v) {
                 if (mSearchListener != null) {
-                    mSearchListener.onSearch("a", "b");
+                    mSearchListener.onSearch(fromSpinner.getSelectedItemId(), toSpinner.getSelectedItemId());
                 }
             }
         });
@@ -105,6 +104,6 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     public interface OnSearchListener {
-        void onSearch(String from, String to);
+        void onSearch(long fromId, long toId);
     }
 }
