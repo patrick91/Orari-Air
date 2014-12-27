@@ -77,6 +77,25 @@ public class TestProvider extends AndroidTestCase {
         TestDb.validateCursor(cursor, value);
     }
 
+    public void testInsertRoute() {
+        ContentValues values = TestDb.createRouteValues(1, 2);
+
+        Uri routeUri = mContext.getContentResolver().insert(RouteEntry.CONTENT_URI, values);
+        long routeId = ContentUris.parseId(routeUri);
+
+        assertTrue(routeId != -1);
+
+        Cursor cursor = mContext.getContentResolver().query(
+                RouteEntry.buildRoutesUri(1, 2),
+                null,
+                null,
+                null,
+                null
+        );
+
+        TestDb.validateCursor(cursor, values);
+    }
+
     public void testGetType() {
         String type = mContext.getContentResolver().getType(LocalityEntry.CONTENT_URI);
         assertEquals(LocalityEntry.CONTENT_TYPE, type);

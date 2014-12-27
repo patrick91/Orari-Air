@@ -52,7 +52,7 @@ public class AirContract {
         public static Uri buildRoutesUri(long fromId, long toId) {
             return CONTENT_URI.buildUpon()
                     .appendQueryParameter(COLUMN_FROM, String.valueOf(fromId))
-                    .appendQueryParameter(COLUMN_TO, String.valueOf(fromId))
+                    .appendQueryParameter(COLUMN_TO, String.valueOf(toId))
                     .build();
         }
 
@@ -62,6 +62,10 @@ public class AirContract {
 
         public static long getToIdFromUri(Uri uri) {
             return Long.valueOf(uri.getQueryParameter(COLUMN_TO));
+        }
+
+        public static Uri buildRouteUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
         }
     }
 }

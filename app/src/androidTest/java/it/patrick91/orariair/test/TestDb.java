@@ -43,6 +43,18 @@ public class TestDb extends AndroidTestCase {
         return values;
     }
 
+    public static ContentValues createRouteValues(long fromId, long toId) {
+        ContentValues values = new ContentValues();
+        values.put(RouteEntry.COLUMN_FROM, fromId);
+        values.put(RouteEntry.COLUMN_TO, toId);
+        values.put(RouteEntry.COLUMN_DATE, "2014-12-26");
+        values.put(RouteEntry.COLUMN_START_TIME, "12:00");
+        values.put(RouteEntry.COLUMN_END_TIME, "13:00");
+        values.put(RouteEntry.COLUMN_DURATION, "1:00");
+
+        return values;
+    }
+
     static void validateCursor(Cursor valueCursor, ContentValues expectedValues) {
         assertTrue(valueCursor.moveToFirst());
 
@@ -119,15 +131,7 @@ public class TestDb extends AndroidTestCase {
         assertTrue(localityAvellino != -1);
         assertTrue(localityFisciano != -1);
 
-        ContentValues routeValues = new ContentValues();
-        routeValues.put(RouteEntry.COLUMN_FROM, localityAvellino);
-        routeValues.put(RouteEntry.COLUMN_TO, localityFisciano);
-        routeValues.put(RouteEntry.COLUMN_DATE, "2014-12-26");
-        routeValues.put(RouteEntry.COLUMN_START_TIME, "12:00");
-        routeValues.put(RouteEntry.COLUMN_END_TIME, "13:00");
-        routeValues.put(RouteEntry.COLUMN_DURATION, "1:00");
-
-        long routeId = db.insert(RouteEntry.TABLE_NAME, null, routeValues);
+        long routeId = db.insert(RouteEntry.TABLE_NAME, null, createRouteValues(localityAvellino, localityFisciano));
 
         assertTrue(routeId != -1);
 

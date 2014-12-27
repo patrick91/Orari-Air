@@ -75,6 +75,24 @@ public class AirContentProvider extends ContentProvider {
                         sortOrder
                 );
                 break;
+
+            case ROUTE:
+                long fromId = RouteEntry.getFromIdFromUri(uri);
+                long toId = RouteEntry.getToIdFromUri(uri);
+
+                String routeSelection = "from_id = ? and to_id = ?";
+                String routeSelectionArgs[] = {String.valueOf(fromId), String.valueOf(toId)};
+
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        RouteEntry.TABLE_NAME,
+                        projection,
+                        routeSelection,
+                        routeSelectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -107,9 +125,11 @@ public class AirContentProvider extends ContentProvider {
 
         Uri returnUri;
 
+        long _id;
+
         switch (match) {
             case LOCALITY:
-                long _id = db.insert(LocalityEntry.TABLE_NAME, null, values);
+                _id = db.insert(LocalityEntry.TABLE_NAME, null, values);
 
                 if (_id > 0) {
                     returnUri = LocalityEntry.buildLocalityUri(_id);
@@ -118,6 +138,17 @@ public class AirContentProvider extends ContentProvider {
                 }
 
                 break;
+            case ROUTE:
+                _id = db.insert(RouteEntry.TABLE_NAME, null, values);
+
+                if (_id > 0) {
+                    returnUri = RouteEntry.buildRouteUri(_id);
+                } else {
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                }
+
+                break;
+
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -132,14 +163,33 @@ public class AirContentProvider extends ContentProvider {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
 
+        int returnCount = 0;
+
         switch (match) {
             case LOCALITY:
                 db.beginTransaction();
-                int returnCount = 0;
 
                 try {
                     for (ContentValues value : values) {
                         long _id = db.insert(LocalityEntry.TABLE_NAME, null, value);
+
+                        if (_id != -1) {
+                            returnCount++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+
+                getContext().getContentResolver().notifyChange(uri, null);
+
+                return returnCount;
+            case ROUTE:
+                db.beginTransaction();
+                try {
+                    for (ContentValues value : values) {
+                        long _id = db.insert(RouteEntry.TABLE_NAME, null, value);
 
                         if (_id != -1) {
                             returnCount++;
