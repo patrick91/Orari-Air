@@ -75,4 +75,12 @@ public class TestProvider extends AndroidTestCase {
 
         TestDb.validateCursor(cursor, value);
     }
+
+    public void testGetType() {
+        String type = mContext.getContentResolver().getType(LocalityEntry.CONTENT_URI);
+        assertEquals(LocalityEntry.CONTENT_TYPE, type);
+
+        type = mContext.getContentResolver().getType(LocalityEntry.buildLocalityUri(1));
+        assertEquals(LocalityEntry.CONTENT_ITEM_TYPE, type);
+    }
 }
