@@ -8,17 +8,17 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import it.patrick91.orariair.R;
 import it.patrick91.orariair.RoutesActivity;
+import it.patrick91.orariair.adapters.RoutesAdapter;
 import it.patrick91.orariair.sync.AirSyncAdapter;
 
 import static it.patrick91.orariair.data.AirContract.LocalityEntry;
@@ -41,10 +41,16 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
             RouteEntry.COLUMN_END_TIME,
             RouteEntry.COLUMN_DURATION,
     };
+
+    public static final int COL_START_TIME = 1;
+    public static final int COL_END_TIME = 2;
+    public static final int COL_DURATION = 3;
+
     private Uri mRoutesUri;
-    private RecyclerView mRoutesView;
+    private ListView mRoutesView;
     private LinearLayout mLoadingLayout;
     private LinearLayout mNoRoutesLayout;
+    private RoutesAdapter mAdapter;
 
     public RoutesFragment() {
     }
@@ -94,15 +100,16 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
         mLoadingLayout = (LinearLayout) rootView.findViewById(R.id.loading_layout);
         mNoRoutesLayout = (LinearLayout) rootView.findViewById(R.id.no_routes_layout);
 
-        mRoutesView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
+        mAdapter = new RoutesAdapter(getActivity(), null, 0);
 
-        mRoutesView.setHasFixedSize(true);
+        mRoutesView = (ListView) rootView.findViewById(R.id.list_view);
+        mRoutesView.setAdapter(mAdapter);
 
-        RoutesAdapter adapter = new RoutesAdapter();
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        View headerView = inflater.inflate(R.layout.header_routes, mRoutesView, false);
+        ((TextView) headerView.findViewById(R.id.from)).setText(getString(R.string.from_xxx, mFromLocalityName));
+        ((TextView) headerView.findViewById(R.id.to)).setText(getString(R.string.to_xxx, mToLocalityName));
 
-        mRoutesView.setLayoutManager(layoutManager);
-        mRoutesView.setAdapter(adapter);
+        mRoutesView.addHeaderView(headerView);
 
         Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
 
@@ -139,6 +146,8 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mAdapter.swapCursor(data);
+
         if (data.getCount() == 0) {
 //            mLoadingLayout.setVisibility(View.GONE);
 //            mNoRoutesLayout.setVisibility(View.VISIBLE);
@@ -156,81 +165,7 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
+        mAdapter.swapCursor(null);
     }
 
-    public class RoutesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-        private int ITEM_VIEW_TYPE_HEADER = 1;
-        private int ITEM_VIEW_TYPE_ROUTE = 2;
-
-        public class RouteViewHolder extends RecyclerView.ViewHolder {
-            public TextView numberView;
-
-            public RouteViewHolder(View itemView) {
-                super(itemView);
-
-                numberView = (TextView) itemView.findViewById(R.id.number);
-            }
-        }
-
-        public class ViewHolder extends RecyclerView.ViewHolder {
-            public TextView fromView;
-            public TextView toView;
-
-            public ViewHolder(View v) {
-                super(v);
-            }
-        }
-
-        @Override
-        public int getItemViewType(int position) {
-            if (position == 0) {
-                return ITEM_VIEW_TYPE_HEADER;
-            }
-
-            return ITEM_VIEW_TYPE_ROUTE;
-        }
-
-        @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent,
-                                                          int viewType) {
-            if (viewType == ITEM_VIEW_TYPE_HEADER) {
-                View v = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.header_routes, parent, false);
-
-                ViewHolder vh = new ViewHolder(v);
-
-                vh.fromView = (TextView) v.findViewById(R.id.from);
-                vh.toView = (TextView) v.findViewById(R.id.to);
-
-                return vh;
-            }
-
-            View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_route, parent, false);
-
-            RouteViewHolder vh = new RouteViewHolder(v);
-
-            return vh;
-        }
-
-        @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
-            if (position == 0) {
-                String from = getString(R.string.from_xxx, mFromLocalityName);
-                String to = getString(R.string.to_xxx, mToLocalityName);
-
-                ((ViewHolder) viewHolder).fromView.setText(from);
-                ((ViewHolder) viewHolder).toView.setText(to);
-            } else {
-                ((RouteViewHolder) viewHolder).numberView.setText(String.valueOf(position));
-            }
-        }
-
-        // Return the size of your dataset (invoked by the layout manager)
-        @Override
-        public int getItemCount() {
-            return 10;
-        }
-    }
 }
