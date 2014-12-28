@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Vector;
 
@@ -39,23 +40,11 @@ public class AirSyncAdapter extends AbstractThreadedSyncAdapter {
         super(context, autoInitialize);
     }
 
-    @Override
-    public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        Log.d(LOG_TAG, "Sync started");
-
-        // These two need to be declared outside the try/catch
-        // so that they can be closed in the finally block.
+    private String getPageContent(URL url) {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
 
-        // Will contain the raw JSON response as a string.
-        String localitiesJsonString = null;
-
         try {
-            final String LOCALITIES_URL = "http://192.168.2.115:8000/api/localities/";
-
-            URL url = new URL(LOCALITIES_URL);
-
             // Create the request to OpenWeatherMap, and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
@@ -66,7 +55,7 @@ public class AirSyncAdapter extends AbstractThreadedSyncAdapter {
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) {
                 // Nothing to do.
-                return;
+                return null;
             }
 
             reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -80,14 +69,14 @@ public class AirSyncAdapter extends AbstractThreadedSyncAdapter {
 
             if (buffer.length() == 0) {
                 // Stream was empty.  No point in parsing.
-                return;
+                return null;
             }
 
-            localitiesJsonString = buffer.toString();
+            return buffer.toString();
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
 
-            return;
+            return null;
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -99,6 +88,21 @@ public class AirSyncAdapter extends AbstractThreadedSyncAdapter {
                     Log.e(LOG_TAG, "Error closing stream", e);
                 }
             }
+        }
+    }
+
+    private void syncLocalities() {
+        URL url = null;
+        try {
+            url = new URL("http://10.0.2.2:8000/api/localities/");
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        String localitiesJsonString = getPageContent(url);
+
+        if (localitiesJsonString == null) {
+            return;
         }
 
         try {
@@ -122,6 +126,13 @@ public class AirSyncAdapter extends AbstractThreadedSyncAdapter {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
+        Log.d(LOG_TAG, "Sync started");
+
+        syncLocalities();
     }
 
     public static void syncImmediately(Context context) {
