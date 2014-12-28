@@ -11,7 +11,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +19,7 @@ import android.widget.TextView;
 
 import it.patrick91.orariair.R;
 import it.patrick91.orariair.RoutesActivity;
+import it.patrick91.orariair.sync.AirSyncAdapter;
 
 import static it.patrick91.orariair.data.AirContract.LocalityEntry;
 import static it.patrick91.orariair.data.AirContract.RouteEntry;
@@ -31,6 +31,9 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
     private static final int ROUTE_LOADER = 1;
     private String mFromLocalityName;
     private String mToLocalityName;
+
+    private long mFromId;
+    private long mToId;
 
     private static final String[] ROUTE_COLUMNS = {
             RouteEntry._ID,
@@ -54,10 +57,10 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
         Bundle arguments = getArguments();
 
         if (arguments != null) {
-            long fromId = arguments.getLong(RoutesActivity.FROM_ID_KEY);
-            long toId = arguments.getLong(RoutesActivity.TO_ID_KEY);
+            mFromId = arguments.getLong(RoutesActivity.FROM_ID_KEY);
+            mToId = arguments.getLong(RoutesActivity.TO_ID_KEY);
 
-            mRoutesUri = RouteEntry.buildRoutesUri(fromId, toId);
+            mRoutesUri = RouteEntry.buildRoutesUri(mFromId, mToId);
 
             String[] COLUMNS = {
                     LocalityEntry.COLUMN_NAME,
@@ -65,14 +68,14 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
             };
 
             Cursor fromLocalityCursor = getActivity().getContentResolver().query(
-                    LocalityEntry.buildLocalityUri(fromId),
+                    LocalityEntry.buildLocalityUri(mFromId),
                     COLUMNS,
                     null,
                     null,
                     null
             );
             Cursor toLocalityCursor = getActivity().getContentResolver().query(
-                    LocalityEntry.buildLocalityUri(toId),
+                    LocalityEntry.buildLocalityUri(mToId),
                     COLUMNS,
                     null,
                     null,
@@ -137,14 +140,15 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (data.getCount() == 0) {
-            // if no data is return let's run a sync with stuff
+//            mLoadingLayout.setVisibility(View.GONE);
+//            mNoRoutesLayout.setVisibility(View.VISIBLE);
 
-            mLoadingLayout.setVisibility(View.GONE);
-            mNoRoutesLayout.setVisibility(View.VISIBLE);
+            AirSyncAdapter.syncRouteImmediately(getActivity(), mFromId, mToId);
 
-
+            // TODO: catch sync end
 
         } else {
+            mNoRoutesLayout.setVisibility(View.GONE);
             mLoadingLayout.setVisibility(View.GONE);
             mRoutesView.setVisibility(View.VISIBLE);
         }

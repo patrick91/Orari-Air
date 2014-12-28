@@ -8,6 +8,8 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SyncResult;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -25,16 +27,18 @@ import java.net.URL;
 import java.util.Vector;
 
 import it.patrick91.orariair.R;
-import it.patrick91.orariair.data.AirContract;
 
 import static it.patrick91.orariair.data.AirContract.LocalityEntry;
-import static it.patrick91.orariair.data.AirContract.LocalityEntry.*;
+import static it.patrick91.orariair.data.AirContract.RouteEntry;
 
 /**
  * Created by patrick on 22/12/14.
  */
 public class AirSyncAdapter extends AbstractThreadedSyncAdapter {
     public final String LOG_TAG = AirSyncAdapter.class.getSimpleName();
+    public static final String SYNC_ROUTE_KEY = "SYNC_ROUTE";
+    public static final String SYNC_FROM_ID_KEY = "SYNC_FROM_ID";
+    public static final String SYNC_TO_ID_KEY = "SYNC_TO_ID";
 
     public AirSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -91,8 +95,86 @@ public class AirSyncAdapter extends AbstractThreadedSyncAdapter {
         }
     }
 
+    private void syncRoute(long fromId, long toId) {
+        String[] COLUMNS = {
+                LocalityEntry.COLUMN_API_ID,
+        };
+
+        Cursor fromLocalityCursor = getContext().getContentResolver().query(
+                LocalityEntry.buildLocalityUri(fromId),
+                COLUMNS,
+                null,
+                null,
+                null
+        );
+
+        Cursor toLocalityCursor = getContext().getContentResolver().query(
+                LocalityEntry.buildLocalityUri(toId),
+                COLUMNS,
+                null,
+                null,
+                null
+        );
+
+        if (!fromLocalityCursor.moveToFirst()) {
+            return;
+        }
+
+        if (!toLocalityCursor.moveToFirst()) {
+            return;
+        }
+
+        long fromApiId = fromLocalityCursor.getLong(0);
+        long toApiId = toLocalityCursor.getLong(0);
+
+        Uri uri = Uri.parse("http://10.0.2.2:8000/api/localities/routes/")
+                .buildUpon()
+                .appendQueryParameter("from_locality", String.valueOf(fromApiId))
+                .appendQueryParameter("to_locality", String.valueOf(toApiId))
+                .build();
+
+        URL url = null;
+
+        try {
+            url = new URL(uri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        String routesJSON = getPageContent(url);
+
+        try {
+            JSONArray routes = new JSONArray(routesJSON);
+
+            Vector<ContentValues> cVVector = new Vector<>(routes.length());
+
+            for (int i = 0; i < routes.length(); i++) {
+                JSONObject obj = routes.getJSONObject(i);
+
+                ContentValues values = ParsingUtils.parseRoute(obj);
+
+                values.put(RouteEntry.COLUMN_FROM, fromId);
+                values.put(RouteEntry.COLUMN_TO, toId);
+                values.put(RouteEntry.COLUMN_DATE, "Today");
+
+                cVVector.add(values);
+            }
+
+            if (cVVector.size() > 0) {
+                ContentValues[] cvArray = new ContentValues[cVVector.size()];
+                cVVector.toArray(cvArray);
+
+                getContext().getContentResolver().bulkInsert(RouteEntry.CONTENT_URI, cvArray);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void syncLocalities() {
         URL url = null;
+
         try {
             url = new URL("http://10.0.2.2:8000/api/localities/");
         } catch (MalformedURLException e) {
@@ -121,7 +203,7 @@ public class AirSyncAdapter extends AbstractThreadedSyncAdapter {
                 cVVector.toArray(cvArray);
 
                 getContext().getContentResolver().delete(LocalityEntry.CONTENT_URI, null, null);
-                getContext().getContentResolver().bulkInsert(CONTENT_URI, cvArray);
+                getContext().getContentResolver().bulkInsert(LocalityEntry.CONTENT_URI, cvArray);
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -132,13 +214,36 @@ public class AirSyncAdapter extends AbstractThreadedSyncAdapter {
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
         Log.d(LOG_TAG, "Sync started");
 
-        syncLocalities();
+        if (extras.containsKey(SYNC_ROUTE_KEY) && extras.getBoolean(SYNC_ROUTE_KEY)) {
+            Log.d(LOG_TAG, "wants to sync route");
+
+            long fromId = extras.getLong(SYNC_FROM_ID_KEY, -1);
+            long toId = extras.getLong(SYNC_TO_ID_KEY, -1);
+
+            if (fromId != -1 && toId != -1) {
+                syncRoute(fromId, toId);
+            }
+        } else {
+            syncLocalities();
+        }
     }
 
     public static void syncImmediately(Context context) {
         Bundle bundle = new Bundle();
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        ContentResolver.requestSync(getSyncAccount(context),
+                context.getString(R.string.content_authority), bundle);
+    }
+
+    public static void syncRouteImmediately(Context context, long fromId, long toId) {
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        bundle.putBoolean(SYNC_ROUTE_KEY, true);
+        bundle.putLong(SYNC_FROM_ID_KEY, fromId);
+        bundle.putLong(SYNC_TO_ID_KEY, toId);
+
         ContentResolver.requestSync(getSyncAccount(context),
                 context.getString(R.string.content_authority), bundle);
     }
