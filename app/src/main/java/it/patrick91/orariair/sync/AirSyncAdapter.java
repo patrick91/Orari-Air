@@ -7,6 +7,8 @@ import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.net.Uri;
@@ -36,6 +38,10 @@ import static it.patrick91.orariair.data.AirContract.RouteEntry;
  */
 public class AirSyncAdapter extends AbstractThreadedSyncAdapter {
     public final String LOG_TAG = AirSyncAdapter.class.getSimpleName();
+
+    public static final String SYNC_FINISHED = "SYNC_FINISHED";
+    public static final String NO_ROUTES_FOUND = "NO_ROUTES_FOUND";
+
     public static final String SYNC_ROUTE_KEY = "SYNC_ROUTE";
     public static final String SYNC_FROM_ID_KEY = "SYNC_FROM_ID";
     public static final String SYNC_TO_ID_KEY = "SYNC_TO_ID";
@@ -116,60 +122,67 @@ public class AirSyncAdapter extends AbstractThreadedSyncAdapter {
                 null
         );
 
-        if (!fromLocalityCursor.moveToFirst()) {
-            return;
-        }
+        boolean routesFound = false;
 
-        if (!toLocalityCursor.moveToFirst()) {
-            return;
-        }
+        if (fromLocalityCursor.moveToFirst() && toLocalityCursor.moveToFirst()) {
 
-        long fromApiId = fromLocalityCursor.getLong(0);
-        long toApiId = toLocalityCursor.getLong(0);
+            long fromApiId = fromLocalityCursor.getLong(0);
+            long toApiId = toLocalityCursor.getLong(0);
 
-        Uri uri = Uri.parse("http://10.0.2.2:8000/api/localities/routes/")
-                .buildUpon()
-                .appendQueryParameter("from_locality", String.valueOf(fromApiId))
-                .appendQueryParameter("to_locality", String.valueOf(toApiId))
-                .build();
+            Uri uri = Uri.parse("http://10.0.2.2:8000/api/localities/routes/")
+                    .buildUpon()
+                    .appendQueryParameter("from_locality", String.valueOf(fromApiId))
+                    .appendQueryParameter("to_locality", String.valueOf(toApiId))
+                    .build();
 
-        URL url = null;
+            URL url = null;
 
-        try {
-            url = new URL(uri.toString());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-
-        String routesJSON = getPageContent(url);
-
-        try {
-            JSONArray routes = new JSONArray(routesJSON);
-
-            Vector<ContentValues> cVVector = new Vector<>(routes.length());
-
-            for (int i = 0; i < routes.length(); i++) {
-                JSONObject obj = routes.getJSONObject(i);
-
-                ContentValues values = ParsingUtils.parseRoute(obj);
-
-                values.put(RouteEntry.COLUMN_FROM, fromId);
-                values.put(RouteEntry.COLUMN_TO, toId);
-                values.put(RouteEntry.COLUMN_DATE, "Today");
-
-                cVVector.add(values);
+            try {
+                url = new URL(uri.toString());
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
             }
 
-            if (cVVector.size() > 0) {
-                ContentValues[] cvArray = new ContentValues[cVVector.size()];
-                cVVector.toArray(cvArray);
+            String routesJSON = getPageContent(url);
 
-                getContext().getContentResolver().bulkInsert(RouteEntry.CONTENT_URI, cvArray);
+            try {
+                JSONArray routes = new JSONArray(routesJSON);
+
+                Vector<ContentValues> cVVector = new Vector<>(routes.length());
+
+                for (int i = 0; i < routes.length(); i++) {
+                    JSONObject obj = routes.getJSONObject(i);
+
+                    ContentValues values = ParsingUtils.parseRoute(obj);
+
+                    values.put(RouteEntry.COLUMN_FROM, fromId);
+                    values.put(RouteEntry.COLUMN_TO, toId);
+                    values.put(RouteEntry.COLUMN_DATE, "Today");
+
+                    cVVector.add(values);
+                }
+
+                if (cVVector.size() > 0) {
+                    routesFound = true;
+
+                    ContentValues[] cvArray = new ContentValues[cVVector.size()];
+                    cVVector.toArray(cvArray);
+
+                    getContext().getContentResolver().bulkInsert(RouteEntry.CONTENT_URI, cvArray);
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
+
+        Intent i = new Intent(SYNC_FINISHED);
+
+        if (!routesFound) {
+            i.putExtra(NO_ROUTES_FOUND, true);
+        }
+
+        getContext().sendBroadcast(i);
     }
 
     private void syncLocalities() {

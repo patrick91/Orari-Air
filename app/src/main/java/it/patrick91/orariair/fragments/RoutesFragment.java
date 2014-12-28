@@ -1,5 +1,9 @@
 package it.patrick91.orariair.fragments;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -51,6 +55,16 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
     private LinearLayout mLoadingLayout;
     private LinearLayout mNoRoutesLayout;
     private RoutesAdapter mAdapter;
+
+    private BroadcastReceiver routeSyncFinishedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.hasExtra(AirSyncAdapter.NO_ROUTES_FOUND)) {
+                mLoadingLayout.setVisibility(View.GONE);
+                mNoRoutesLayout.setVisibility(View.VISIBLE);
+            }
+        }
+    };
 
     public RoutesFragment() {
     }
@@ -131,6 +145,17 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
         super.onActivityCreated(savedInstanceState);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        getActivity().registerReceiver(routeSyncFinishedReceiver, new IntentFilter(AirSyncAdapter.SYNC_FINISHED));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getActivity().unregisterReceiver(routeSyncFinishedReceiver);
+    }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -149,13 +174,7 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
         mAdapter.swapCursor(data);
 
         if (data.getCount() == 0) {
-//            mLoadingLayout.setVisibility(View.GONE);
-//            mNoRoutesLayout.setVisibility(View.VISIBLE);
-
             AirSyncAdapter.syncRouteImmediately(getActivity(), mFromId, mToId);
-
-            // TODO: catch sync end
-
         } else {
             mNoRoutesLayout.setVisibility(View.GONE);
             mLoadingLayout.setVisibility(View.GONE);
