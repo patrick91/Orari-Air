@@ -12,7 +12,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
@@ -37,7 +37,7 @@
             android:name="it.patrick91.orariair.data.AirContentProvider"
             android:authorities="it.patrick91.orariair"
             android:exported="false"
-            android:syncable="true"/>
+            android:syncable="true" />
 
         <service
             android:name=".sync.AirSyncService"

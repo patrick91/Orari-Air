@@ -11,8 +11,7 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         android:minHeight="?attr/actionBarSize"
-        app:contentInsetStart="72dp"
-        app:title="Demo" />
+        app:title="@string/app_name" />
 
     <fragment
         android:id="@+id/container"
