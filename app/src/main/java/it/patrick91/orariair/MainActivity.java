@@ -6,23 +6,34 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import it.patrick91.orariair.fragments.RoutesFragment;
 import it.patrick91.orariair.fragments.SearchFragment;
 import it.patrick91.orariair.sync.AirSyncAdapter;
 
 
 public class MainActivity extends ActionBarActivity implements SearchFragment.OnSearchListener {
 
+    private boolean mTwoPane;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new SearchFragment())
-                    .commit();
+
+        if (findViewById(R.id.routes_container) != null) {
+            // The detail container view will be present only in the large-screen layouts
+            // (res/layout-sw600dp). If this view is present, then the activity should be
+            // in two-pane mode.
+            mTwoPane = true;
+
+            if (savedInstanceState == null) {
+                // TODO: show something
+            }
+        } else {
+            mTwoPane = false;
         }
 
-        AirSyncAdapter.syncImmediately(this);
+        // AirSyncAdapter.syncImmediately(this);
     }
 
     @Override
@@ -49,11 +60,29 @@ public class MainActivity extends ActionBarActivity implements SearchFragment.On
 
     @Override
     public void onSearch(long fromId, long toId) {
-        Intent searchIntent = new Intent(this, RoutesActivity.class);
+        if (mTwoPane) {
+            // In two-pane mode, show the detail view in this activity by
+            // adding or replacing the detail fragment using a
+            // fragment transaction.
+            Bundle args = new Bundle();
 
-        searchIntent.putExtra(RoutesActivity.FROM_ID_KEY, fromId);
-        searchIntent.putExtra(RoutesActivity.TO_ID_KEY, toId);
+            args.putLong(RoutesActivity.FROM_ID_KEY, fromId);
+            args.putLong(RoutesActivity.TO_ID_KEY, toId);
 
-        startActivity(searchIntent);
+            RoutesFragment fragment = new RoutesFragment();
+            fragment.setArguments(args);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.routes_container, fragment)
+                    .commit();
+        } else {
+
+            Intent searchIntent = new Intent(this, RoutesActivity.class);
+
+            searchIntent.putExtra(RoutesActivity.FROM_ID_KEY, fromId);
+            searchIntent.putExtra(RoutesActivity.TO_ID_KEY, toId);
+
+            startActivity(searchIntent);
+        }
     }
 }

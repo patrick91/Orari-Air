@@ -125,11 +125,6 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
 
         mRoutesView.addHeaderView(headerView);
 
-        Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
-
-        ((ActionBarActivity) getActivity()).setSupportActionBar(toolbar);
-        ((ActionBarActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
         return rootView;
     }
 
