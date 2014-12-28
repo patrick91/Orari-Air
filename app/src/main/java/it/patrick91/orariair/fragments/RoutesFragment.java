@@ -1,8 +1,12 @@
 package it.patrick91.orariair.fragments;
 
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,20 +15,33 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import it.patrick91.orariair.R;
 import it.patrick91.orariair.RoutesActivity;
-import it.patrick91.orariair.data.AirContract;
 
 import static it.patrick91.orariair.data.AirContract.LocalityEntry;
+import static it.patrick91.orariair.data.AirContract.RouteEntry;
 
 /**
  * Created by patrick on 09/12/14.
  */
-public class RoutesFragment extends Fragment {
+public class RoutesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    private static final int ROUTE_LOADER = 1;
     private String mFromLocalityName;
     private String mToLocalityName;
+
+    private static final String[] ROUTE_COLUMNS = {
+            RouteEntry._ID,
+            RouteEntry.COLUMN_START_TIME,
+            RouteEntry.COLUMN_END_TIME,
+            RouteEntry.COLUMN_DURATION,
+    };
+    private Uri mRoutesUri;
+    private RecyclerView mRoutesView;
+    private LinearLayout mLoadingLayout;
+    private LinearLayout mNoRoutesLayout;
 
     public RoutesFragment() {
     }
@@ -39,6 +56,8 @@ public class RoutesFragment extends Fragment {
         if (arguments != null) {
             long fromId = arguments.getLong(RoutesActivity.FROM_ID_KEY);
             long toId = arguments.getLong(RoutesActivity.TO_ID_KEY);
+
+            mRoutesUri = RouteEntry.buildRoutesUri(fromId, toId);
 
             String[] COLUMNS = {
                     LocalityEntry.COLUMN_NAME,
@@ -65,20 +84,22 @@ public class RoutesFragment extends Fragment {
             }
 
             if (toLocalityCursor.moveToFirst()) {
-                mToLocalityName = fromLocalityCursor.getString(0);
+                mToLocalityName = toLocalityCursor.getString(0);
             }
         }
 
+        mLoadingLayout = (LinearLayout) rootView.findViewById(R.id.loading_layout);
+        mNoRoutesLayout = (LinearLayout) rootView.findViewById(R.id.no_routes_layout);
 
-        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
+        mRoutesView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
 
-        recyclerView.setHasFixedSize(true);
+        mRoutesView.setHasFixedSize(true);
 
         RoutesAdapter adapter = new RoutesAdapter();
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
 
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(adapter);
+        mRoutesView.setLayoutManager(layoutManager);
+        mRoutesView.setAdapter(adapter);
 
         Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
 
@@ -91,6 +112,47 @@ public class RoutesFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(ROUTE_LOADER, null, this);
+
+        super.onActivityCreated(savedInstanceState);
+    }
+
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(
+                getActivity(),
+                mRoutesUri,
+                ROUTE_COLUMNS,
+                null,
+                null,
+                null
+        );
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (data.getCount() == 0) {
+            // if no data is return let's run a sync with stuff
+
+            mLoadingLayout.setVisibility(View.GONE);
+            mNoRoutesLayout.setVisibility(View.VISIBLE);
+
+
+
+        } else {
+            mLoadingLayout.setVisibility(View.GONE);
+            mRoutesView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
     }
 
     public class RoutesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {

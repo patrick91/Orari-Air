@@ -12,5 +12,7 @@
     <string name="from_xxx">From: %1$s</string>
     <string name="sync_account_type">orariair.patrick91.it</string>
     <string name="content_authority">it.patrick91.orariair</string>
+    <string name="loading_routes">Loading routes</string>
+    <string name="no_routes_found">No routes found</string>
 
 </resources>
