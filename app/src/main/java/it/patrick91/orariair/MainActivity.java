@@ -33,7 +33,7 @@ public class MainActivity extends ActionBarActivity implements SearchFragment.On
             mTwoPane = false;
         }
 
-        // AirSyncAdapter.syncImmediately(this);
+        AirSyncAdapter.initializeSyncAdapter(this);
     }
 
     @Override

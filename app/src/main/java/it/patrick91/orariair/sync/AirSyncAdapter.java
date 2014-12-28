@@ -225,11 +225,7 @@ public class AirSyncAdapter extends AbstractThreadedSyncAdapter {
 
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        Log.d(LOG_TAG, "Sync started");
-
         if (extras.containsKey(SYNC_ROUTE_KEY) && extras.getBoolean(SYNC_ROUTE_KEY)) {
-            Log.d(LOG_TAG, "wants to sync route");
-
             long fromId = extras.getLong(SYNC_FROM_ID_KEY, -1);
             long toId = extras.getLong(SYNC_TO_ID_KEY, -1);
 
