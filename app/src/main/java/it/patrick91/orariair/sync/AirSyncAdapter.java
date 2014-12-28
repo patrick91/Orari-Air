@@ -286,8 +286,18 @@ public class AirSyncAdapter extends AbstractThreadedSyncAdapter {
              * then call ContentResolver.setIsSyncable(account, AUTHORITY, 1)
              * here.
              */
+
+            onAccountCreated(newAccount, context);
         }
 
         return newAccount;
+    }
+
+    private static void onAccountCreated(Account newAccount, Context context) {
+        syncImmediately(context);
+    }
+
+    public static void initializeSyncAdapter(Context context) {
+        getSyncAccount(context);
     }
 }
