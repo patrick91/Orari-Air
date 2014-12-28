@@ -145,34 +145,36 @@ public class AirSyncAdapter extends AbstractThreadedSyncAdapter {
 
             String routesJSON = getPageContent(url);
 
-            try {
-                JSONArray routes = new JSONArray(routesJSON);
+            if (routesJSON != null) {
+                try {
+                    JSONArray routes = new JSONArray(routesJSON);
 
-                Vector<ContentValues> cVVector = new Vector<>(routes.length());
+                    Vector<ContentValues> cVVector = new Vector<>(routes.length());
 
-                for (int i = 0; i < routes.length(); i++) {
-                    JSONObject obj = routes.getJSONObject(i);
+                    for (int i = 0; i < routes.length(); i++) {
+                        JSONObject obj = routes.getJSONObject(i);
 
-                    ContentValues values = ParsingUtils.parseRoute(obj);
+                        ContentValues values = ParsingUtils.parseRoute(obj);
 
-                    values.put(RouteEntry.COLUMN_FROM, fromId);
-                    values.put(RouteEntry.COLUMN_TO, toId);
-                    values.put(RouteEntry.COLUMN_DATE, "Today");
+                        values.put(RouteEntry.COLUMN_FROM, fromId);
+                        values.put(RouteEntry.COLUMN_TO, toId);
+                        values.put(RouteEntry.COLUMN_DATE, "Today");
 
-                    cVVector.add(values);
+                        cVVector.add(values);
+                    }
+
+                    if (cVVector.size() > 0) {
+                        routesFound = true;
+
+                        ContentValues[] cvArray = new ContentValues[cVVector.size()];
+                        cVVector.toArray(cvArray);
+
+                        getContext().getContentResolver().bulkInsert(RouteEntry.CONTENT_URI, cvArray);
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-
-                if (cVVector.size() > 0) {
-                    routesFound = true;
-
-                    ContentValues[] cvArray = new ContentValues[cVVector.size()];
-                    cVVector.toArray(cvArray);
-
-                    getContext().getContentResolver().bulkInsert(RouteEntry.CONTENT_URI, cvArray);
-                }
-
-            } catch (JSONException e) {
-                e.printStackTrace();
             }
         }
 
