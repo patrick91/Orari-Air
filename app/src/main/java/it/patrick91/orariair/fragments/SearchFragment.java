@@ -18,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.DatePicker;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -140,10 +141,19 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
         rootView.findViewById(R.id.search_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                long fromId = mFromSpinner.getSelectedItemId();
+                long toId = mToSpinner.getSelectedItemId();
+
+                if (fromId == toId) {
+                    Toast.makeText(getActivity(), R.string.same_locality, Toast.LENGTH_LONG).show();
+
+                    return;
+                }
+
                 if (mSearchListener != null) {
                     mSearchListener.onSearch(
-                            mFromSpinner.getSelectedItemId(),
-                            mToSpinner.getSelectedItemId(),
+                            fromId,
+                            toId,
                             mSelectedDate.toMillis(false));
                 }
             }

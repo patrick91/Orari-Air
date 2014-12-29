@@ -19,5 +19,6 @@
     <string name="when_hint">When:</string>
 
     <string name="preference_file_key">it.patrick91.orariari.PREFERENCES</string>
+    <string name="same_locality">You can\'t select the same locatities for depature and arrival</string>
 
 </resources>
