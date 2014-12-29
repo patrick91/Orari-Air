@@ -18,4 +18,6 @@
     <string name="no_routes_found">No routes found</string>
     <string name="when_hint">When:</string>
 
+    <string name="preference_file_key">it.patrick91.orariari.PREFERENCES</string>
+
 </resources>

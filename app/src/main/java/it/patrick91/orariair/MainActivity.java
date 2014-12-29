@@ -1,10 +1,17 @@
 package it.patrick91.orariair;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+
+import java.io.IOException;
 
 import it.patrick91.orariair.fragments.RoutesFragment;
 import it.patrick91.orariair.fragments.SearchFragment;
@@ -12,8 +19,11 @@ import it.patrick91.orariair.sync.AirSyncAdapter;
 
 
 public class MainActivity extends ActionBarActivity implements SearchFragment.OnSearchListener {
-
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    private static final String SENDER_ID = "976425307439";
     private boolean mTwoPane;
+    private GoogleCloudMessaging mGCM;
+    private String mRegId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +44,17 @@ public class MainActivity extends ActionBarActivity implements SearchFragment.On
         }
 
         AirSyncAdapter.initializeSyncAdapter(this);
+
+        // Check device for Play Services APK. If check succeeds, proceed with
+        //  GCM registration.
+        if (checkPlayServices()) {
+            mGCM = GoogleCloudMessaging.getInstance(this);
+            mRegId = Utils.getRegistrationId(this);
+
+            if (mRegId.isEmpty()) {
+                registerInBackground();
+            }
+        }
     }
 
     @Override
@@ -86,5 +107,52 @@ public class MainActivity extends ActionBarActivity implements SearchFragment.On
 
             startActivity(searchIntent);
         }
+    }
+
+    private boolean checkPlayServices() {
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this,
+                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
+            }
+
+            return false;
+        }
+        return true;
+    }
+
+    private void registerInBackground() {
+        AsyncTask<Void, Void, Void> registerTask = new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+                    if (mGCM == null) {
+                        mGCM = GoogleCloudMessaging.getInstance(MainActivity.this);
+                    }
+
+                    mRegId = mGCM.register(SENDER_ID);
+
+                    // You should send the registration ID to your server over HTTP,
+                    // so it can use GCM/HTTP or CCS to send messages to your app.
+                    // The request to your server should be authenticated if your app
+                    // is using accounts.
+                    AirSyncAdapter.sendRegistrationIdToBackend(mRegId);
+
+                    // For this demo: we don't need to send it because the device
+                    // will send upstream messages to a server that echo back the
+                    // message using the 'from' address in the message.
+
+                    // Persist the regID - no need to register again.
+                    Utils.storeRegistrationId(MainActivity.this, mRegId);
+                } catch (IOException ex) {
+                    // If there is an error, don't just keep trying to register.
+                }
+
+                return null;
+            }
+        };
+
+        registerTask.execute(null, null, null);
     }
 }

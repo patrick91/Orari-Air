@@ -16,6 +16,14 @@ import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,6 +35,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import it.patrick91.orariair.R;
@@ -40,7 +50,7 @@ import static it.patrick91.orariair.data.AirContract.RouteEntry;
 public class AirSyncAdapter extends AbstractThreadedSyncAdapter {
     public final String LOG_TAG = AirSyncAdapter.class.getSimpleName();
 
-    private final String BASE_URL = "https://morning-thicket-4484.herokuapp.com/api";
+    private static final String BASE_URL = "https://morning-thicket-4484.herokuapp.com/api";
 
     public static final String SYNC_FINISHED = "SYNC_FINISHED";
     public static final String NO_ROUTES_FOUND = "NO_ROUTES_FOUND";
@@ -309,5 +319,22 @@ public class AirSyncAdapter extends AbstractThreadedSyncAdapter {
 
     public static void initializeSyncAdapter(Context context) {
         getSyncAccount(context);
+    }
+
+    public static void sendRegistrationIdToBackend(String mRegId) {
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpPost httppost = new HttpPost(BASE_URL + "/users/");
+
+        try {
+            // Add your data
+            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
+            nameValuePairs.add(new BasicNameValuePair("gcm_key", mRegId));
+            httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+            // Execute HTTP Post Request
+            HttpResponse response = httpclient.execute(httppost);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+        }
     }
 }

@@ -10,11 +10,25 @@
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
 
+    <!-- GCM Permissions  -->
+
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
+    <permission
+        android:name="it.patrick91.orariair.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+    <uses-permission android:name="it.patrick91.orariair.permission.C2D_MESSAGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name">
@@ -38,6 +52,15 @@
             android:authorities="it.patrick91.orariair"
             android:exported="false"
             android:syncable="true" />
+
+        <receiver
+            android:name=".receivers.GCMBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <category android:name="it.patrick91.orariair" />
+            </intent-filter>
+        </receiver>
 
         <service
             android:name=".sync.AirSyncService"
