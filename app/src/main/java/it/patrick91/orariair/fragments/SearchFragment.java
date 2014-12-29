@@ -219,6 +219,8 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
 
         if (mToPosition != Spinner.INVALID_POSITION) {
             mToSpinner.setSelection(mToPosition);
+        } else if (data.getCount() > 1) {
+            mToSpinner.setSelection(1);
         }
     }
 
