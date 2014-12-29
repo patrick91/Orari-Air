@@ -21,7 +21,9 @@ public class AirContentProvider extends ContentProvider {
 
     private static final int LOCALITY = 100;
     private static final int LOCALITY_ID = 101;
+
     private static final int ROUTE = 200;
+    private static final int ROUTE_WITH_DATE = 201;
 
     @Override
     public boolean onCreate() {
@@ -38,6 +40,7 @@ public class AirContentProvider extends ContentProvider {
         matcher.addURI(authority, AirContract.PATH_LOCALITY + "/#", LOCALITY_ID);
 
         matcher.addURI(authority, AirContract.PATH_ROUTE, ROUTE);
+        matcher.addURI(authority, AirContract.PATH_ROUTE + "/*", ROUTE_WITH_DATE);
 
         return matcher;
     }
@@ -76,7 +79,7 @@ public class AirContentProvider extends ContentProvider {
                 );
                 break;
 
-            case ROUTE:
+            case ROUTE: {
                 long fromId = RouteEntry.getFromIdFromUri(uri);
                 long toId = RouteEntry.getToIdFromUri(uri);
 
@@ -93,6 +96,29 @@ public class AirContentProvider extends ContentProvider {
                         sortOrder
                 );
                 break;
+            }
+
+            case ROUTE_WITH_DATE: {
+                long fromId = RouteEntry.getFromIdFromUri(uri);
+                long toId = RouteEntry.getToIdFromUri(uri);
+
+                String date = RouteEntry.getDateFromUri(uri);
+
+                String routeSelection = "from_id = ? and to_id = ? and date = ?";
+                String routeSelectionArgs[] = {String.valueOf(fromId), String.valueOf(toId), date};
+
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        RouteEntry.TABLE_NAME,
+                        projection,
+                        routeSelection,
+                        routeSelectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            }
+
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }

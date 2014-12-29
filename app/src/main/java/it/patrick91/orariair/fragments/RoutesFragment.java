@@ -11,8 +11,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +36,7 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
 
     private long mFromId;
     private long mToId;
+    private long mDate;
 
     private static final String[] ROUTE_COLUMNS = {
             RouteEntry._ID,
@@ -79,8 +78,9 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
         if (arguments != null) {
             mFromId = arguments.getLong(RoutesActivity.FROM_ID_KEY);
             mToId = arguments.getLong(RoutesActivity.TO_ID_KEY);
+            mDate = arguments.getLong(RoutesActivity.DATE_KEY);
 
-            mRoutesUri = RouteEntry.buildRoutesUri(mFromId, mToId);
+            mRoutesUri = RouteEntry.buildRoutesUri(mFromId, mToId, mDate);
 
             String[] COLUMNS = {
                     LocalityEntry.COLUMN_NAME,
@@ -169,7 +169,7 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
         mAdapter.swapCursor(data);
 
         if (data.getCount() == 0) {
-            AirSyncAdapter.syncRouteImmediately(getActivity(), mFromId, mToId);
+            AirSyncAdapter.syncRouteImmediately(getActivity(), mFromId, mToId, mDate);
         } else {
             mNoRoutesLayout.setVisibility(View.GONE);
             mLoadingLayout.setVisibility(View.GONE);

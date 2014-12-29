@@ -13,6 +13,7 @@ import android.content.SyncResult;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.format.Time;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -39,12 +40,15 @@ import static it.patrick91.orariair.data.AirContract.RouteEntry;
 public class AirSyncAdapter extends AbstractThreadedSyncAdapter {
     public final String LOG_TAG = AirSyncAdapter.class.getSimpleName();
 
+    private final String BASE_URL = "https://morning-thicket-4484.herokuapp.com/api";
+
     public static final String SYNC_FINISHED = "SYNC_FINISHED";
     public static final String NO_ROUTES_FOUND = "NO_ROUTES_FOUND";
 
     public static final String SYNC_ROUTE_KEY = "SYNC_ROUTE";
     public static final String SYNC_FROM_ID_KEY = "SYNC_FROM_ID";
     public static final String SYNC_TO_ID_KEY = "SYNC_TO_ID";
+    public static final String SYNC_DATE_KEY = "SYNC_DATE";
 
     public AirSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -101,7 +105,7 @@ public class AirSyncAdapter extends AbstractThreadedSyncAdapter {
         }
     }
 
-    private void syncRoute(long fromId, long toId) {
+    private void syncRoute(long fromId, long toId, long date) {
         String[] COLUMNS = {
                 LocalityEntry.COLUMN_API_ID,
         };
@@ -124,15 +128,21 @@ public class AirSyncAdapter extends AbstractThreadedSyncAdapter {
 
         boolean routesFound = false;
 
+        Time t = new Time();
+        t.set(date);
+
+        String formattedDate = t.format(RouteEntry.DATE_FORMAT);
+
         if (fromLocalityCursor.moveToFirst() && toLocalityCursor.moveToFirst()) {
 
             long fromApiId = fromLocalityCursor.getLong(0);
             long toApiId = toLocalityCursor.getLong(0);
 
-            Uri uri = Uri.parse("http://10.0.2.2:8000/api/localities/routes/")
+            Uri uri = Uri.parse(BASE_URL + "/localities/routes/")
                     .buildUpon()
                     .appendQueryParameter("from_locality", String.valueOf(fromApiId))
                     .appendQueryParameter("to_locality", String.valueOf(toApiId))
+                    .appendQueryParameter("day", formattedDate)
                     .build();
 
             URL url = null;
@@ -158,7 +168,7 @@ public class AirSyncAdapter extends AbstractThreadedSyncAdapter {
 
                         values.put(RouteEntry.COLUMN_FROM, fromId);
                         values.put(RouteEntry.COLUMN_TO, toId);
-                        values.put(RouteEntry.COLUMN_DATE, "Today");
+                        values.put(RouteEntry.COLUMN_DATE, formattedDate);
 
                         cVVector.add(values);
                     }
@@ -191,7 +201,7 @@ public class AirSyncAdapter extends AbstractThreadedSyncAdapter {
         URL url = null;
 
         try {
-            url = new URL("http://10.0.2.2:8000/api/localities/");
+            url = new URL(BASE_URL + "/localities/");
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
@@ -230,9 +240,10 @@ public class AirSyncAdapter extends AbstractThreadedSyncAdapter {
         if (extras.containsKey(SYNC_ROUTE_KEY) && extras.getBoolean(SYNC_ROUTE_KEY)) {
             long fromId = extras.getLong(SYNC_FROM_ID_KEY, -1);
             long toId = extras.getLong(SYNC_TO_ID_KEY, -1);
+            long date = extras.getLong(SYNC_DATE_KEY, -1);
 
-            if (fromId != -1 && toId != -1) {
-                syncRoute(fromId, toId);
+            if (fromId != -1 && toId != -1 && date != -1) {
+                syncRoute(fromId, toId, date);
             }
         } else {
             syncLocalities();
@@ -247,13 +258,14 @@ public class AirSyncAdapter extends AbstractThreadedSyncAdapter {
                 context.getString(R.string.content_authority), bundle);
     }
 
-    public static void syncRouteImmediately(Context context, long fromId, long toId) {
+    public static void syncRouteImmediately(Context context, long fromId, long toId, long date) {
         Bundle bundle = new Bundle();
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         bundle.putBoolean(SYNC_ROUTE_KEY, true);
         bundle.putLong(SYNC_FROM_ID_KEY, fromId);
         bundle.putLong(SYNC_TO_ID_KEY, toId);
+        bundle.putLong(SYNC_DATE_KEY, date);
 
         ContentResolver.requestSync(getSyncAccount(context),
                 context.getString(R.string.content_authority), bundle);

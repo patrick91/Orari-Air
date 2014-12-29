@@ -139,7 +139,10 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
             @Override
             public void onClick(View v) {
                 if (mSearchListener != null) {
-                    mSearchListener.onSearch(mFromSpinner.getSelectedItemId(), mToSpinner.getSelectedItemId());
+                    mSearchListener.onSearch(
+                            mFromSpinner.getSelectedItemId(),
+                            mToSpinner.getSelectedItemId(),
+                            mSelectedDate.toMillis(false));
                 }
             }
         });
@@ -213,6 +216,6 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     public interface OnSearchListener {
-        void onSearch(long fromId, long toId);
+        void onSearch(long fromId, long toId, long date);
     }
 }

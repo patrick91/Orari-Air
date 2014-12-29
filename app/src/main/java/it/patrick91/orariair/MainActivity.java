@@ -59,7 +59,7 @@ public class MainActivity extends ActionBarActivity implements SearchFragment.On
     }
 
     @Override
-    public void onSearch(long fromId, long toId) {
+    public void onSearch(long fromId, long toId, long date) {
         if (mTwoPane) {
             // In two-pane mode, show the detail view in this activity by
             // adding or replacing the detail fragment using a
@@ -68,6 +68,7 @@ public class MainActivity extends ActionBarActivity implements SearchFragment.On
 
             args.putLong(RoutesActivity.FROM_ID_KEY, fromId);
             args.putLong(RoutesActivity.TO_ID_KEY, toId);
+            args.putLong(RoutesActivity.DATE_KEY, date);
 
             RoutesFragment fragment = new RoutesFragment();
             fragment.setArguments(args);
@@ -81,6 +82,7 @@ public class MainActivity extends ActionBarActivity implements SearchFragment.On
 
             searchIntent.putExtra(RoutesActivity.FROM_ID_KEY, fromId);
             searchIntent.putExtra(RoutesActivity.TO_ID_KEY, toId);
+            searchIntent.putExtra(RoutesActivity.DATE_KEY, date);
 
             startActivity(searchIntent);
         }

@@ -3,6 +3,7 @@ package it.patrick91.orariair.data;
 import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.text.format.Time;
 
 /**
  * Created by patrick on 23/12/14.
@@ -43,6 +44,8 @@ public class AirContract {
         public static final String COLUMN_END_TIME = "end_time";
         public static final String COLUMN_DURATION = "duration";
 
+        public static final String DATE_FORMAT = "%F";
+
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_ROUTE).build();
 
@@ -56,12 +59,29 @@ public class AirContract {
                     .build();
         }
 
+        public static Uri buildRoutesUri(long fromId, long toId, long date) {
+            Time t = new Time();
+            t.set(date);
+
+            String datePath = t.format(DATE_FORMAT);
+
+            return CONTENT_URI.buildUpon()
+                    .appendPath(datePath)
+                    .appendQueryParameter(COLUMN_FROM, String.valueOf(fromId))
+                    .appendQueryParameter(COLUMN_TO, String.valueOf(toId))
+                    .build();
+        }
+
         public static long getFromIdFromUri(Uri uri) {
             return Long.valueOf(uri.getQueryParameter(COLUMN_FROM));
         }
 
         public static long getToIdFromUri(Uri uri) {
             return Long.valueOf(uri.getQueryParameter(COLUMN_TO));
+        }
+
+        public static String getDateFromUri(Uri uri) {
+            return uri.getPathSegments().get(1);
         }
 
         public static Uri buildRouteUri(long id) {
