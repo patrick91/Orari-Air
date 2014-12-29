@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         android:minHeight="?attr/actionBarSize"
-        app:contentInsetStart="72dp"
+        app:theme="@style/AppTheme.Toolbar"
         app:title="Demo" />
 
     <LinearLayout
