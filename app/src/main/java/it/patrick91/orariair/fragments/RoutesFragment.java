@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.format.Time;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -119,9 +120,15 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
         mRoutesView = (ListView) rootView.findViewById(R.id.list_view);
         mRoutesView.setAdapter(mAdapter);
 
+        Time t = new Time();
+        t.set(mDate);
+
+        String formattedDate = t.format(SearchFragment.DATE_FORMAT);
+
         View headerView = inflater.inflate(R.layout.header_routes, mRoutesView, false);
         ((TextView) headerView.findViewById(R.id.from)).setText(getString(R.string.from_xxx, mFromLocalityName));
         ((TextView) headerView.findViewById(R.id.to)).setText(getString(R.string.to_xxx, mToLocalityName));
+        ((TextView) headerView.findViewById(R.id.on)).setText(getString(R.string.on_xxx, formattedDate));
 
         mRoutesView.addHeaderView(headerView);
 

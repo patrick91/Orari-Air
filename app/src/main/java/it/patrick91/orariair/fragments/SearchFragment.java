@@ -35,6 +35,9 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
     private static final String SELECTED_FROM_KEY = "selected_from_position";
     private static final String SELECTED_TO_KEY = "selected_to_position";
     private static final String SELECTED_DATE_KEY = "selected_date";
+
+    public static final String DATE_FORMAT = "%d %B %Y";
+
     private OnSearchListener mSearchListener;
 
     private static final String[] LOCALITY_COLUMNS = {
@@ -49,7 +52,6 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
     private Spinner mToSpinner;
 
     private TextView mDateTextView;
-    private String mDateFormat = "%d %B %Y";
     private Time mSelectedDate;
 
     public SearchFragment() {
@@ -85,7 +87,7 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
         mSelectedDate.setToNow();
 
         mDateTextView = (TextView) rootView.findViewById(R.id.date);
-        mDateTextView.setText(mSelectedDate.format(mDateFormat));
+        mDateTextView.setText(mSelectedDate.format(DATE_FORMAT));
 
         mDateTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,7 +96,7 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                         mSelectedDate.set(dayOfMonth, monthOfYear, year);
-                        mDateTextView.setText(mSelectedDate.format(mDateFormat));
+                        mDateTextView.setText(mSelectedDate.format(DATE_FORMAT));
                     }
                 }, mSelectedDate.year, mSelectedDate.month, mSelectedDate.monthDay);
 
@@ -163,7 +165,7 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
 
             if (savedInstanceState.containsKey(SELECTED_DATE_KEY)) {
                 mSelectedDate.set(savedInstanceState.getLong(SELECTED_DATE_KEY));
-                mDateTextView.setText(mSelectedDate.format(mDateFormat));
+                mDateTextView.setText(mSelectedDate.format(DATE_FORMAT));
             }
         }
 
