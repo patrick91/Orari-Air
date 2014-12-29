@@ -8,9 +8,9 @@
     <string name="to_hint">To:</string>
     <string name="search">Search</string>
     <string name="title_activity_routes">RoutesActivity</string>
-    <string name="to_xxx">To: %1$s</string>
-    <string name="from_xxx">From: %1$s</string>
-    <string name="on_xxx">On: %1$s</string>
+    <string name="to_xxx">B</string>
+    <string name="from_xxx">A</string>
+    <string name="on_xxx">ON</string>
     <string name="departure_arrival">Departure: %1$s\nArrival: %2$s</string>
     <string name="sync_account_type">orariair.patrick91.it</string>
     <string name="content_authority">it.patrick91.orariair</string>
@@ -20,5 +20,6 @@
 
     <string name="preference_file_key">it.patrick91.orariari.PREFERENCES</string>
     <string name="same_locality">You can\'t select the same locatities for depature and arrival</string>
+    <string name="routes_title">Routes</string>
 
 </resources>

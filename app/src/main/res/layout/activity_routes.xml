@@ -12,8 +12,9 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         android:minHeight="?attr/actionBarSize"
-        app:contentInsetStart="72dp"
-        app:title="Demo" />
+        app:contentInsetStart="@dimen/item_left_column_width"
+        app:theme="@style/AppTheme.Toolbar"
+        app:title="@string/routes_title" />
 
     <FrameLayout
         android:id="@+id/container"

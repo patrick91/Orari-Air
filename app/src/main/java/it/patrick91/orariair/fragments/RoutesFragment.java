@@ -126,9 +126,9 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
         String formattedDate = t.format(SearchFragment.DATE_FORMAT);
 
         View headerView = inflater.inflate(R.layout.header_routes, mRoutesView, false);
-        ((TextView) headerView.findViewById(R.id.from)).setText(getString(R.string.from_xxx, mFromLocalityName));
-        ((TextView) headerView.findViewById(R.id.to)).setText(getString(R.string.to_xxx, mToLocalityName));
-        ((TextView) headerView.findViewById(R.id.on)).setText(getString(R.string.on_xxx, formattedDate));
+        ((TextView) headerView.findViewById(R.id.from)).setText(mFromLocalityName);
+        ((TextView) headerView.findViewById(R.id.to)).setText(mToLocalityName);
+        ((TextView) headerView.findViewById(R.id.on)).setText(formattedDate);
 
         mRoutesView.addHeaderView(headerView);
 
