@@ -15,5 +15,6 @@
     <string name="content_authority">it.patrick91.orariair</string>
     <string name="loading_routes">Loading routes</string>
     <string name="no_routes_found">No routes found</string>
+    <string name="when_hint">When:</string>
 
 </resources>

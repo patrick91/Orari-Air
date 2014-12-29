@@ -1,6 +1,7 @@
 package it.patrick91.orariair.fragments;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -9,11 +10,18 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.text.format.Time;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.DatePicker;
 import android.widget.Spinner;
+import android.widget.TextView;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 import it.patrick91.orariair.R;
 
@@ -38,6 +46,10 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
     private int mToPosition = Spinner.INVALID_POSITION;
     private Spinner mFromSpinner;
     private Spinner mToSpinner;
+
+    private TextView mDateTextView;
+    private String mDateFormat = "%d %B %Y";
+    private Time mSelectedDate;
 
     public SearchFragment() {
     }
@@ -67,6 +79,27 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
 
         mFromSpinner = (Spinner) rootView.findViewById(R.id.from_spinner);
         mToSpinner = (Spinner) rootView.findViewById(R.id.to_spinner);
+
+        mSelectedDate = new Time();
+        mSelectedDate.setToNow();
+
+        mDateTextView = (TextView) rootView.findViewById(R.id.date);
+        mDateTextView.setText(mSelectedDate.format(mDateFormat));
+
+        mDateTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DatePickerDialog pickerDialog = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                        mSelectedDate.set(dayOfMonth, monthOfYear, year);
+                        mDateTextView.setText(mSelectedDate.format(mDateFormat));
+                    }
+                }, mSelectedDate.year, mSelectedDate.month, mSelectedDate.monthDay);
+
+                pickerDialog.show();
+            }
+        });
 
         mLocalityAdapter = new SimpleCursorAdapter(getActivity(),
                 android.R.layout.simple_list_item_1,
