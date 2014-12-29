@@ -34,6 +34,7 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
     private static final int LOCALITY_LOADER = 0;
     private static final String SELECTED_FROM_KEY = "selected_from_position";
     private static final String SELECTED_TO_KEY = "selected_to_position";
+    private static final String SELECTED_DATE_KEY = "selected_date";
     private OnSearchListener mSearchListener;
 
     private static final String[] LOCALITY_COLUMNS = {
@@ -156,6 +157,11 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
             if (savedInstanceState.containsKey(SELECTED_TO_KEY)) {
                 mToPosition = savedInstanceState.getInt(SELECTED_TO_KEY);
             }
+
+            if (savedInstanceState.containsKey(SELECTED_DATE_KEY)) {
+                mSelectedDate.set(savedInstanceState.getLong(SELECTED_DATE_KEY));
+                mDateTextView.setText(mSelectedDate.format(mDateFormat));
+            }
         }
 
         super.onViewStateRestored(savedInstanceState);
@@ -170,6 +176,8 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
         if (mToPosition != Spinner.INVALID_POSITION) {
             outState.putInt(SELECTED_TO_KEY, mToPosition);
         }
+
+        outState.putLong(SELECTED_DATE_KEY, mSelectedDate.toMillis(false));
 
         super.onSaveInstanceState(outState);
     }
