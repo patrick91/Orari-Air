@@ -15,7 +15,7 @@
         android:background="?attr/colorPrimary"
         android:minHeight="?attr/actionBarSize"
         app:theme="@style/AppTheme.Toolbar"
-        app:title="Demo" />
+        app:title="@string/app_name" />
 
     <LinearLayout
         android:layout_width="match_parent"
