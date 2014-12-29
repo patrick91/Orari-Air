@@ -7,9 +7,8 @@
 
     <TextView
         android:id="@+id/number"
-        android:layout_width="@dimen/item_left_column_width"
-        android:layout_height="match_parent"
-        android:gravity="center"
+        style="@style/AppTheme.LeftColumnTextView"
+        android:textColor="@android:color/darker_gray"
         android:textSize="20sp"
         android:textStyle="bold"
         tools:text="0" />

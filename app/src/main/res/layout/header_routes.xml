@@ -11,24 +11,14 @@
         android:layout_height="?android:attr/listPreferredItemHeight">
 
         <TextView
-            android:layout_width="@dimen/item_left_column_width"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:paddingBottom="@dimen/activity_vertical_margin"
-            android:paddingTop="@dimen/activity_vertical_margin"
-            android:text="@string/from_xxx"
-            android:textAppearance="?android:textAppearanceLarge"
-            android:textColor="@android:color/white" />
+            style="@style/AppTheme.LeftColumnTextView"
+            android:text="@string/from_xxx" />
 
         <TextView
             android:id="@+id/from"
+            style="@style/AppTheme.FormText"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fontFamily="sans-serif-condensed"
-            android:gravity="center_vertical"
-            android:paddingBottom="@dimen/activity_vertical_margin"
-            android:paddingTop="@dimen/activity_vertical_margin"
-            android:textAppearance="?android:textAppearanceLarge"
             android:textColor="@android:color/white"
             tools:text="Avellino" />
     </LinearLayout>
@@ -38,24 +28,14 @@
         android:layout_height="?android:attr/listPreferredItemHeight">
 
         <TextView
-            android:layout_width="@dimen/item_left_column_width"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:paddingBottom="@dimen/activity_vertical_margin"
-            android:paddingTop="@dimen/activity_vertical_margin"
-            android:text="@string/to_xxx"
-            android:textAppearance="?android:textAppearanceLarge"
-            android:textColor="@android:color/white" />
+            style="@style/AppTheme.LeftColumnTextView"
+            android:text="@string/to_xxx" />
 
         <TextView
             android:id="@+id/to"
+            style="@style/AppTheme.FormText"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fontFamily="sans-serif-condensed"
-            android:gravity="center_vertical"
-            android:paddingBottom="@dimen/activity_vertical_margin"
-            android:paddingTop="@dimen/activity_vertical_margin"
-            android:textAppearance="?android:textAppearanceLarge"
             android:textColor="@android:color/white"
             tools:text="Fisciano" />
     </LinearLayout>
@@ -66,24 +46,14 @@
         android:layout_height="?android:attr/listPreferredItemHeight">
 
         <TextView
-            android:layout_width="@dimen/item_left_column_width"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:paddingBottom="@dimen/activity_vertical_margin"
-            android:paddingTop="@dimen/activity_vertical_margin"
-            android:text="@string/on_xxx"
-            android:textAppearance="?android:textAppearanceLarge"
-            android:textColor="@android:color/white" />
+            style="@style/AppTheme.LeftColumnTextView"
+            android:text="@string/on_xxx" />
 
         <TextView
             android:id="@+id/on"
+            style="@style/AppTheme.FormText"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fontFamily="sans-serif-condensed"
-            android:gravity="center_vertical"
-            android:paddingBottom="@dimen/activity_vertical_margin"
-            android:paddingTop="@dimen/activity_vertical_margin"
-            android:textAppearance="?android:textAppearanceLarge"
             android:textColor="@android:color/white"
             tools:text="28 december 2014" />
     </LinearLayout>
