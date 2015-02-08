@@ -15,7 +15,6 @@ import android.text.format.Time;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -52,15 +51,15 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
 
     private Uri mRoutesUri;
     private ListView mRoutesView;
-    private LinearLayout mLoadingLayout;
-    private LinearLayout mNoRoutesLayout;
+    private TextView mLoadingTextView;
+    private TextView mNoRoutesLayout;
     private RoutesAdapter mAdapter;
 
     private BroadcastReceiver routeSyncFinishedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.hasExtra(AirSyncAdapter.NO_ROUTES_FOUND)) {
-                mLoadingLayout.setVisibility(View.GONE);
+                mLoadingTextView.setVisibility(View.GONE);
                 mNoRoutesLayout.setVisibility(View.VISIBLE);
             }
         }
@@ -115,8 +114,8 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
             toLocalityCursor.close();
         }
 
-        mLoadingLayout = (LinearLayout) rootView.findViewById(R.id.loading_layout);
-        mNoRoutesLayout = (LinearLayout) rootView.findViewById(R.id.no_routes_layout);
+        mLoadingTextView = (TextView) rootView.findViewById(R.id.loading);
+        mNoRoutesLayout = (TextView) rootView.findViewById(R.id.no_routes);
 
         mAdapter = new RoutesAdapter(getActivity(), null, 0);
 
@@ -182,7 +181,7 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
             AirSyncAdapter.syncRouteImmediately(getActivity(), mFromId, mToId, mDate);
         } else {
             mNoRoutesLayout.setVisibility(View.GONE);
-            mLoadingLayout.setVisibility(View.GONE);
+            mLoadingTextView.setVisibility(View.GONE);
             mRoutesView.setVisibility(View.VISIBLE);
         }
     }
