@@ -110,6 +110,9 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
             if (toLocalityCursor.moveToFirst()) {
                 mToLocalityName = toLocalityCursor.getString(0);
             }
+
+            fromLocalityCursor.close();
+            toLocalityCursor.close();
         }
 
         mLoadingLayout = (LinearLayout) rootView.findViewById(R.id.loading_layout);
