@@ -11,6 +11,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.format.Time;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,7 +52,8 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
     public static final int COL_DURATION = 3;
 
     private Uri mRoutesUri;
-    private ListView mRoutesView;
+    private RecyclerView mRoutesView;
+    private LinearLayoutManager mLayoutManager;
     private TextView mLoadingTextView;
     private TextView mNoRoutesLayout;
     private RoutesAdapter mAdapter;
@@ -117,9 +120,13 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
         mLoadingTextView = (TextView) rootView.findViewById(R.id.loading);
         mNoRoutesLayout = (TextView) rootView.findViewById(R.id.no_routes);
 
-        mAdapter = new RoutesAdapter(getActivity(), null, 0);
+        mAdapter = new RoutesAdapter(getActivity(), null);
 
-        mRoutesView = (ListView) rootView.findViewById(R.id.list_view);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+
+        mRoutesView = (RecyclerView) rootView.findViewById(R.id.routes);
+        mRoutesView.setHasFixedSize(true);
+        mRoutesView.setLayoutManager(mLayoutManager);
         mRoutesView.setAdapter(mAdapter);
 
         Time t = new Time();
@@ -132,7 +139,7 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
         ((TextView) headerView.findViewById(R.id.to)).setText(mToLocalityName);
         ((TextView) headerView.findViewById(R.id.on)).setText(formattedDate);
 
-        mRoutesView.addHeaderView(headerView);
+        //mRoutesView.addHeaderView(headerView);
 
         return rootView;
     }
